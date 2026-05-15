@@ -1,0 +1,10 @@
+# Go
+server/.env
+server/tmp/
+
+# Node
+client/node_modules/
+client/dist/
+
+# OS
+.DS_Store
