@@ -1,7 +1,5 @@
 FROM golang:alpine AS builder
 WORKDIR /app
-COPY server/go.mod server/go.sum ./
-RUN go mod download
 COPY server/ ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/api/main.go
 
