@@ -102,7 +102,7 @@ export default function HomePage() {
               Mahjong Maven
             </Heading>
             <Text fontSize="xl" color="brand.goldLight" maxW="lg">
-              Elegant tournament management for your American mahjong group.
+              Tournament management for your American mahjong group.
               Create tournaments, seat players, track scores, and crown your
               champion.
             </Text>
@@ -143,7 +143,7 @@ export default function HomePage() {
               How Mahjong Maven Works
             </Heading>
             <Text color="gray.500" maxW="md">
-              Run a polished American mahjong tournament in four simple steps.
+              Run an American mahjong tournament in four simple steps.
             </Text>
           </VStack>
 
