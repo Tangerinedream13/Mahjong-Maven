@@ -106,7 +106,7 @@ export default function HomePage() {
               Create tournaments, seat players, track scores, and crown your
               champion.
             </Text>
-            <HStack spacing={4} pt={2}>
+            <Flex direction={{ base: "column", sm: "row" }} gap={3} pt={2} w="full" justify="center">
               <Button
                 size="lg"
                 bg="brand.buttercup"
@@ -115,6 +115,7 @@ export default function HomePage() {
                 _hover={{ bg: "brand.buttercupLight" }}
                 onClick={() => navigate("/tournaments/new")}
                 px={8}
+                w={{ base: "full", sm: "auto" }}
               >
                 Start a Tournament
               </Button>
@@ -125,10 +126,11 @@ export default function HomePage() {
                 color="brand.goldLight"
                 _hover={{ bg: "brand.burgundyLight", borderColor: "white" }}
                 onClick={() => navigate("/tournaments")}
+                w={{ base: "full", sm: "auto" }}
               >
                 View Tournaments
               </Button>
-            </HStack>
+            </Flex>
           </VStack>
         </Container>
       </Box>

@@ -99,18 +99,19 @@ function TableCard({ tableData, roundId, onScoreSaved }) {
               <Box
                 as="input"
                 type="number"
+                inputMode="numeric"
                 placeholder="Score"
                 value={scores[p.id]}
                 onChange={(e) =>
                   setScores((prev) => ({ ...prev, [p.id]: e.target.value }))
                 }
-                w="80px"
+                w="90px"
                 border="1px solid"
                 borderColor="brand.goldLight"
                 borderRadius="md"
-                px={2}
-                py={1}
-                fontSize="sm"
+                px={3}
+                py={2}
+                fontSize="md"
                 textAlign="right"
                 _focus={{ outline: "2px solid", outlineColor: "brand.burgundy" }}
               />
@@ -239,12 +240,12 @@ export default function TournamentDetailPage() {
     <Container maxW="6xl" py={10}>
       <VStack spacing={8} align="stretch">
         {/* Header */}
-        <Flex justify="space-between" align="start" wrap="wrap" gap={4}>
+        <Flex direction={{ base: "column", md: "row" }} justify="space-between" align="start" gap={4}>
           <VStack align="start" spacing={1}>
-            <Heading size="xl" color="brand.burgundy" fontFamily="heading">
+            <Heading size={{ base: "lg", md: "xl" }} color="brand.burgundy" fontFamily="heading">
               {tournament?.name}
             </Heading>
-            <HStack spacing={3} fontSize="sm" color="gray.500">
+            <VStack align="start" spacing={0} fontSize="sm" color="gray.500">
               <Text>
                 {new Date(tournament?.date).toLocaleDateString("en-US", {
                   weekday: "long",
@@ -253,9 +254,9 @@ export default function TournamentDetailPage() {
                   day: "numeric",
                 })}
               </Text>
-              {tournament?.location && <Text>· {tournament.location}</Text>}
-            </HStack>
-            <HStack spacing={3} mt={1}>
+              {tournament?.location && <Text>{tournament.location}</Text>}
+            </VStack>
+            <HStack spacing={2} mt={1} wrap="wrap">
               <Badge colorScheme="purple">{players.length} players</Badge>
               <Badge colorScheme="blue">
                 Round {rounds.length} of {tournament?.rounds}
@@ -263,7 +264,7 @@ export default function TournamentDetailPage() {
               <Badge colorScheme="orange">{tournament?.round_minutes} min/round</Badge>
             </HStack>
           </VStack>
-          <HStack>
+          <Flex wrap="wrap" gap={2} flexShrink={0}>
             <Button
               variant="outline"
               size="sm"
@@ -301,7 +302,7 @@ export default function TournamentDetailPage() {
                 Generate Round {rounds.length + 1}
               </Button>
             )}
-          </HStack>
+          </Flex>
         </Flex>
 
         {/* Standings */}
