@@ -137,6 +137,7 @@ export default function TournamentDetailPage() {
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [generatingRound, setGeneratingRound] = useState(false);
+  const [addingRound, setAddingRound] = useState(false);
   const [resetting, setResetting] = useState(false);
   const { isOpen: isResetOpen, onOpen: onResetOpen, onClose: onResetClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
@@ -210,6 +211,20 @@ export default function TournamentDetailPage() {
     } catch {
       toast({ title: "Could not delete tournament", status: "error" });
       setDeleting(false);
+    }
+  };
+
+  const addAnotherRound = async () => {
+    setAddingRound(true);
+    try {
+      await api.patch(`/tournaments/${id}`, { rounds: (tournament.rounds ?? 0) + 1 });
+      await api.post(`/tournaments/${id}/rounds/generate`);
+      await load();
+      toast({ title: "Another round added!", status: "success", duration: 2000 });
+    } catch {
+      toast({ title: "Could not add another round", status: "error" });
+    } finally {
+      setAddingRound(false);
     }
   };
 
@@ -300,6 +315,20 @@ export default function TournamentDetailPage() {
                 onClick={generateRound}
               >
                 Generate Round {rounds.length + 1}
+              </Button>
+            )}
+            {!canGenerateRound && rounds.length > 0 && rounds.length >= (tournament?.rounds ?? 0) && players.length >= 4 && (
+              <Button
+                size="sm"
+                bg="brand.buttercup"
+                color="brand.charcoal"
+                fontWeight="bold"
+                _hover={{ bg: "brand.buttercupLight" }}
+                isLoading={addingRound}
+                loadingText="Adding round..."
+                onClick={addAnotherRound}
+              >
+                + Play Another Round
               </Button>
             )}
           </Flex>

@@ -319,6 +319,7 @@ func UpdateTournament(c *gin.Context) {
 		Name     string `json:"name"`
 		Date     string `json:"date"`
 		Location string `json:"location"`
+		Rounds   int    `json:"rounds"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -329,10 +330,11 @@ func UpdateTournament(c *gin.Context) {
 		UPDATE tournaments SET
 			name     = COALESCE(NULLIF($1,''), name),
 			date     = COALESCE(NULLIF($2,'')::date, date),
-			location = COALESCE($3, location)
-		WHERE id=$4
+			location = COALESCE($3, location),
+			rounds   = CASE WHEN $4 > 0 THEN $4 ELSE rounds END
+		WHERE id=$5
 		RETURNING id, name, date, COALESCE(location,''), rounds, round_minutes, status, created_at
-	`, input.Name, input.Date, input.Location, tid).
+	`, input.Name, input.Date, input.Location, input.Rounds, tid).
 		Scan(&t.ID, &t.Name, &t.Date, &t.Location, &t.Rounds, &t.RoundMinutes, &t.Status, &t.CreatedAt)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
