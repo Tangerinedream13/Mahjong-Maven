@@ -32,6 +32,7 @@ func main() {
 		api.GET("/tournaments", handlers.ListTournaments)
 		api.POST("/tournaments", handlers.CreateTournament)
 		api.GET("/tournaments/:id", handlers.GetTournament)
+		api.PATCH("/tournaments/:id", handlers.UpdateTournament)
 
 		// Players
 		api.GET("/tournaments/:id/players", handlers.ListPlayers)
@@ -42,12 +43,16 @@ func main() {
 		// Rounds
 		api.GET("/tournaments/:id/rounds", handlers.ListRounds)
 		api.POST("/tournaments/:id/rounds/generate", handlers.GenerateRound)
+		api.DELETE("/tournaments/:id/reset", handlers.ResetTournament)
+		api.DELETE("/tournaments/:id", handlers.DeleteTournament)
+		api.DELETE("/rounds/:rid", handlers.DeleteRound)
 
 		// Scores
 		api.POST("/rounds/:rid/scores", handlers.SaveScores)
 
 		// Standings
 		api.GET("/tournaments/:id/standings", handlers.GetStandings)
+		api.GET("/leaderboard", handlers.GetLeaderboard)
 	}
 
 	port := os.Getenv("PORT")

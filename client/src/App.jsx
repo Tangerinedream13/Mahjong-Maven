@@ -6,6 +6,7 @@ import TournamentsPage from "./pages/TournamentsPage";
 import NewTournamentPage from "./pages/NewTournamentPage";
 import TournamentDetailPage from "./pages/TournamentDetailPage";
 import AddPlayersPage from "./pages/AddPlayersPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/tournaments/new" element={<NewTournamentPage />} />
         <Route path="/tournaments/:id" element={<TournamentDetailPage />} />
         <Route path="/tournaments/:id/players" element={<AddPlayersPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
       </Routes>
     </Box>
   );
