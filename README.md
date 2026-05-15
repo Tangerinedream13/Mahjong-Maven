@@ -16,7 +16,7 @@
 
 ---
 
-Mahjong Maven was built for the PEO Chapter, Chapter M, in Asheville, NC, a group of women who just want to play mahjong without dealing with spreadsheets. It handles all the logistics so you can focus on the game.
+Mahjong Maven was built for the PEO Chapter M, in Asheville, NC, a group of women who just want to play mahjong without dealing with spreadsheets. It handles all the logistics so you can focus on the game.
 
 ## What it does
 
