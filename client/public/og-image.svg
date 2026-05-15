@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#722F37"/>
+
+  <!-- Gold border frame -->
+  <rect x="24" y="24" width="1152" height="582" rx="16" fill="none" stroke="#C9A84C" stroke-width="3"/>
+
+  <!-- Tile decorations left -->
+  <text x="80" y="200" font-size="120" font-family="serif" fill="#C9A84C" opacity="0.25">🀇</text>
+  <text x="80" y="340" font-size="120" font-family="serif" fill="#C9A84C" opacity="0.25">🀙</text>
+  <text x="80" y="480" font-size="120" font-family="serif" fill="#C9A84C" opacity="0.25">🀐</text>
+
+  <!-- Tile decorations right -->
+  <text x="980" y="200" font-size="120" font-family="serif" fill="#C9A84C" opacity="0.25">🀅</text>
+  <text x="980" y="340" font-size="120" font-family="serif" fill="#C9A84C" opacity="0.25">🀆</text>
+  <text x="980" y="480" font-size="120" font-family="serif" fill="#C9A84C" opacity="0.25">🀄</text>
+
+  <!-- Main title -->
+  <text x="600" y="260" font-family="Georgia, serif" font-size="96" font-weight="bold" fill="#F5C518" text-anchor="middle">Mahjong Maven</text>
+
+  <!-- Divider -->
+  <line x1="300" y1="295" x2="900" y2="295" stroke="#C9A84C" stroke-width="2" opacity="0.6"/>
+
+  <!-- Tagline -->
+  <text x="600" y="365" font-family="Georgia, serif" font-size="36" fill="#F5C518" text-anchor="middle" opacity="0.9">Tournament Manager</text>
+
+  <!-- Sub tagline -->
+  <text x="600" y="430" font-family="Georgia, serif" font-size="26" fill="white" text-anchor="middle" opacity="0.7">Built for PEO Chapter M · Asheville, NC 💮</text>
+
+  <!-- URL -->
+  <text x="600" y="555" font-family="Georgia, serif" font-size="22" fill="#C9A84C" text-anchor="middle" opacity="0.8">www.mahjong-maven.com</text>
+</svg>
