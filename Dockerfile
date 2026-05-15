@@ -1,4 +1,4 @@
-FROM golang:alpine AS builder
+FROM golang:1.26-alpine AS builder
 WORKDIR /app
 COPY server/ ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/api/main.go
