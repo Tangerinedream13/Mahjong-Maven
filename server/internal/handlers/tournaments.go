@@ -292,6 +292,99 @@ func SaveScores(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"saved": true})
 }
 
+func DeleteRound(c *gin.Context) {
+	rid, _ := strconv.Atoi(c.Param("rid"))
+	_, err := db.DB.Exec(`DELETE FROM rounds WHERE id=$1`, rid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"deleted": rid})
+}
+
+func ResetTournament(c *gin.Context) {
+	tid, _ := strconv.Atoi(c.Param("id"))
+	_, err := db.DB.Exec(`DELETE FROM rounds WHERE tournament_id=$1`, tid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	db.DB.Exec(`UPDATE tournaments SET status='upcoming' WHERE id=$1`, tid)
+	c.JSON(http.StatusOK, gin.H{"reset": true})
+}
+
+func UpdateTournament(c *gin.Context) {
+	tid, _ := strconv.Atoi(c.Param("id"))
+	var input struct {
+		Name     string `json:"name"`
+		Date     string `json:"date"`
+		Location string `json:"location"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var t models.Tournament
+	err := db.DB.QueryRow(`
+		UPDATE tournaments SET
+			name     = COALESCE(NULLIF($1,''), name),
+			date     = COALESCE(NULLIF($2,'')::date, date),
+			location = COALESCE($3, location)
+		WHERE id=$4
+		RETURNING id, name, date, COALESCE(location,''), rounds, round_minutes, status, created_at
+	`, input.Name, input.Date, input.Location, tid).
+		Scan(&t.ID, &t.Name, &t.Date, &t.Location, &t.Rounds, &t.RoundMinutes, &t.Status, &t.CreatedAt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, t)
+}
+
+func DeleteTournament(c *gin.Context) {
+	tid, _ := strconv.Atoi(c.Param("id"))
+	_, err := db.DB.Exec(`DELETE FROM tournaments WHERE id=$1`, tid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"deleted": tid})
+}
+
+func GetLeaderboard(c *gin.Context) {
+	rows, err := db.DB.Query(`
+		SELECT p.name,
+		       COALESCE(SUM(s.score), 0)        AS total_score,
+		       COUNT(DISTINCT p.tournament_id)   AS tournaments_played,
+		       COUNT(s.id)                       AS rounds_played
+		FROM players p
+		LEFT JOIN scores s ON s.player_id = p.id
+		GROUP BY p.name
+		ORDER BY total_score DESC, p.name
+	`)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer rows.Close()
+	type Entry struct {
+		Name               string `json:"name"`
+		TotalScore         int    `json:"total_score"`
+		TournamentsPlayed  int    `json:"tournaments_played"`
+		RoundsPlayed       int    `json:"rounds_played"`
+	}
+	var entries []Entry
+	for rows.Next() {
+		var e Entry
+		rows.Scan(&e.Name, &e.TotalScore, &e.TournamentsPlayed, &e.RoundsPlayed)
+		entries = append(entries, e)
+	}
+	if entries == nil {
+		entries = []Entry{}
+	}
+	c.JSON(http.StatusOK, entries)
+}
+
 func GetStandings(c *gin.Context) {
 	tid, _ := strconv.Atoi(c.Param("id"))
 	rows, err := db.DB.Query(`

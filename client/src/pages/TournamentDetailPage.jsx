@@ -24,8 +24,25 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  Input,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/client";
 
@@ -119,6 +136,15 @@ export default function TournamentDetailPage() {
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [generatingRound, setGeneratingRound] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const { isOpen: isResetOpen, onOpen: onResetOpen, onClose: onResetClose } = useDisclosure();
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
+  const cancelResetRef = useRef();
+  const cancelDeleteRef = useRef();
+  const [editFields, setEditFields] = useState({ name: "", date: "", location: "" });
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const load = () => {
     Promise.all([
@@ -149,6 +175,54 @@ export default function TournamentDetailPage() {
       toast({ title: "Could not generate round", status: "error" });
     } finally {
       setGeneratingRound(false);
+    }
+  };
+
+  const openEdit = () => {
+    setEditFields({
+      name: tournament?.name ?? "",
+      date: tournament?.date?.slice(0, 10) ?? "",
+      location: tournament?.location ?? "",
+    });
+    onEditOpen();
+  };
+
+  const saveTournament = async () => {
+    setSaving(true);
+    try {
+      await api.patch(`/tournaments/${id}`, editFields);
+      onEditClose();
+      await load();
+      toast({ title: "Tournament updated!", status: "success", duration: 2000 });
+    } catch {
+      toast({ title: "Could not save changes", status: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteTournament = async () => {
+    setDeleting(true);
+    try {
+      await api.delete(`/tournaments/${id}`);
+      navigate("/tournaments");
+    } catch {
+      toast({ title: "Could not delete tournament", status: "error" });
+      setDeleting(false);
+    }
+  };
+
+  const resetTournament = async () => {
+    setResetting(true);
+    try {
+      await api.delete(`/tournaments/${id}/reset`);
+      onResetClose();
+      await load();
+      toast({ title: "Tournament reset to Round 1", status: "success", duration: 2000 });
+    } catch {
+      toast({ title: "Could not reset tournament", status: "error" });
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -197,6 +271,22 @@ export default function TournamentDetailPage() {
             >
               Manage Players
             </Button>
+            <Button variant="outline" size="sm" onClick={openEdit}>
+              Edit
+            </Button>
+            <Button variant="outline" size="sm" colorScheme="red" onClick={onDeleteOpen}>
+              Delete
+            </Button>
+            {rounds.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                colorScheme="red"
+                onClick={onResetOpen}
+              >
+                Start Over
+              </Button>
+            )}
             {canGenerateRound && (
               <Button
                 size="sm"
@@ -361,6 +451,86 @@ export default function TournamentDetailPage() {
           </Box>
         )}
       </VStack>
+
+      {/* Edit modal */}
+      <Modal isOpen={isEditOpen} onClose={onEditClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader color="brand.burgundy" fontFamily="heading">Edit Tournament</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={4}>
+              <FormControl>
+                <FormLabel fontSize="sm">Name</FormLabel>
+                <Input
+                  value={editFields.name}
+                  onChange={(e) => setEditFields((f) => ({ ...f, name: e.target.value }))}
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="sm">Date</FormLabel>
+                <Input
+                  type="date"
+                  value={editFields.date}
+                  onChange={(e) => setEditFields((f) => ({ ...f, date: e.target.value }))}
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="sm">Location</FormLabel>
+                <Input
+                  value={editFields.location}
+                  onChange={(e) => setEditFields((f) => ({ ...f, location: e.target.value }))}
+                />
+              </FormControl>
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={onEditClose}>Cancel</Button>
+            <Button isLoading={saving} onClick={saveTournament}>Save</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Delete confirmation */}
+      <AlertDialog isOpen={isDeleteOpen} leastDestructiveRef={cancelDeleteRef} onClose={onDeleteClose}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold" color="brand.burgundy" fontFamily="heading">
+              Delete Tournament?
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              This will permanently delete <strong>{tournament?.name}</strong> and all its players, rounds, and scores. This cannot be undone.
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelDeleteRef} onClick={onDeleteClose}>Cancel</Button>
+              <Button colorScheme="red" onClick={deleteTournament} isLoading={deleting} ml={3}>
+                Yes, Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
+      <AlertDialog isOpen={isResetOpen} leastDestructiveRef={cancelResetRef} onClose={onResetClose}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold" color="brand.burgundy" fontFamily="heading">
+              Start Over?
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              This will delete all rounds and scores for this tournament. Players will stay. You'll be back at Round 1.
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelResetRef} onClick={onResetClose}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={resetTournament} isLoading={resetting} ml={3}>
+                Yes, Start Over
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Container>
   );
 }
